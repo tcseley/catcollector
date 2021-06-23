@@ -1,21 +1,16 @@
-<!-- templates/cats/index.html -->
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>catcollector</title>
-  </head>
-  <body>
-    <h1>the catcollector's cats</h1>
-    <hr />
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
     {% for cat in cats %}
+    <a href="/cats/create">Add a New Cat!</a>
+  <hr />
+    <a href='/cats/{{cat.id}}'>
         <p>Name :{{cat.name}} </p>
-        {% if cat.age > 0 %}
+        {% if cat.age > 0 %}</a>
             <p>Age {{cat.age}} </p>
         {%else%}
             <p> Age: Kitten</p>
         {% endif %}
         <hr/>
     {% endfor %}
-    <footer>All Rights Reserved, catcollector 2021</footer>
-  </body>
-</html>
+{% endblock %}

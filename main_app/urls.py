@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path('about/', views.about, name='about' ),
-    path('index/', views.index, name='index')
+    path('index/', views.index, name='index'),
+    path('cats/', views.cats_index, name='cat_index')
 ]
 
 # When thinking about making a webpage inside of django- first step would be:

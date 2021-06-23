@@ -12,12 +12,12 @@ def index(request):
 
 def cats_index(request):
     cats = Cat.objects.all()
-    # data ={'cats': cats}
+    #data ={'cats': cats}
     return render(request, 'cats/index.html', {'cats': cats})
 
 def cats_show(request, cat_id):
     cat = Cat.objects.get(id=cat_id)
-    # data = {'cats': cats}
+    #data = {'cat': cat}
     return render(request, 'cats/show.html', {'cat': cat})
 
 
@@ -39,4 +39,4 @@ class CatDelete(DeleteView):
   model = Cat
   success_url = '/cats'
 
-  
+

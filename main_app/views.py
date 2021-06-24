@@ -1,10 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Cat
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from .models import Cat, CatToy
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -27,14 +32,13 @@ def cats_show(request, cat_id):
 
 class CatCreate(CreateView):
   model = Cat
-  fields = '__all__'
-  success_url = '/cats'
+  fields = ['name', 'breed', 'description', 'age']
 
   def form_valid(self, form):
     self.object = form.save(commit=False)
     self.object.user = self.request.user
     self.object.save()
-    return HttpResponseRedirect('/cats')
+    return HttpResponseRedirect('/cats/' + str(self.object.pk))
 
 
 class CatUpdate(UpdateView):
@@ -46,10 +50,12 @@ class CatUpdate(UpdateView):
     self.object.save()
     return HttpResponseRedirect('/cats/' + str(self.object.pk))
 
+@method_decorator(login_required, name='dispatch')
 class CatDelete(DeleteView):
   model = Cat
   success_url = '/cats'
 
+@login_required
 def profile(request, username):
     user = User.objects.get(username=username)
     cats = Cat.objects.filter(user=user)
@@ -78,3 +84,44 @@ class CatToyDelete(DeleteView):
     model = CatToy
     success_url = '/cattoys'
 
+def login_view(request):
+     # if post, then authenticate (user submitted username and password)
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            u = form.cleaned_data['username']
+            p = form.cleaned_data['password']
+            user = authenticate(username = u, password = p)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return HttpResponseRedirect('/user/'+u)
+                else:
+                    print('The account has been disabled.')
+                    return HttpResponseRedirect('/login')
+        else:
+            print('The username and/or password is incorrect.')
+            return HttpResponseRedirect('/login')
+    else: # it was a get request so send the emtpy login form
+        form = AuthenticationForm()
+        return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect('/cats')
+
+  
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            u = form.cleaned_data['username']
+            login(request, user)
+            return redirect('/cats')
+        else:
+          print("Invalid form submitted.")
+          return redirect('/signup')
+    else:
+        form = UserCreationForm()
+        return render(request, 'signup.html', {'form': form})

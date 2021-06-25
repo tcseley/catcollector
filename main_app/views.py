@@ -4,7 +4,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
-from .models import Cat, CatToy
+from .models import CatToy
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
@@ -17,7 +17,7 @@ def about(request):
     return render(request, 'about.html')
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'base.html')
 
 def cats_index(request):
     cats = Cat.objects.all()
@@ -40,10 +40,10 @@ class CatCreate(CreateView):
     self.object.save()
     return HttpResponseRedirect('/cats/' + str(self.object.pk))
 
-
+@method_decorator(login_required, name='dispatch')
 class CatUpdate(UpdateView):
   model = Cat
-  fields = ['name', 'breed', 'description', 'age']
+  fields = ['name', 'breed', 'description', 'age', 'cattoys']
 
   def form_valid(self, form):
     self.object = form.save(commit=False)
@@ -74,7 +74,6 @@ class CatToyCreate(CreateView):
     fields = '__all__'
     success_url = '/cattoys'
     
-
 class CatToyUpdate(UpdateView):
     model = CatToy
     fields = ['name', 'color']

@@ -19,7 +19,6 @@ urlpatterns = [
     path('login/', views.login_view, name="login"),
     path('logout/', views.logout_view, name="logout"),
     path('signup/', views.signup, name='signup'),
-    path('user/<username>/', views.profile, name='profile'),
 ]
 
 # When thinking about making a webpage inside of django- first step would be:
